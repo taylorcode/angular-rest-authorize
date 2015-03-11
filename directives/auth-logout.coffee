@@ -8,7 +8,7 @@
  # it calls on the AuthService to log the user out.
 ###
 
-angular.module 'icrAuth'
+angular.module 'angularRestAuthorize'
 
 .directive 'authLogout', ($location, AuthService) ->
 	restrict: 'A'
