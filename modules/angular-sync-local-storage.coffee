@@ -7,7 +7,7 @@
  # Allows you to automatically synchronize an object with localStorage across browser windows.
 ###
 
-angular.module('angularSyncLocalStorage')
+angular.module('angularSyncLocalStorage', [])
 
 .provider 'synchronizedLocalStorage', ->
 
@@ -27,10 +27,10 @@ angular.module('angularSyncLocalStorage')
 	    # iterate and recurse if it's an array
 	    if _.isArray(v)
 	      _.each v, (item) ->
-	        _.cleanObj item, deep
+	        cleanObj item, deep
 	      return
 	    # it's a normal object, recurse
-	    _.cleanObj v, deep
+	    cleanObj v, deep
 	  obj
 
 	# reliable test for local storage browser support
@@ -64,7 +64,7 @@ angular.module('angularSyncLocalStorage')
 					return true
 				if not angular.equals sessionContainer, localObj
 					# extend with jQuery because it's deep
-					$.extend true, _.cleanObj(sessionContainer, true), localObj
+					$.extend true, cleanObj(sessionContainer, true), localObj
 					return true
 				false
 
