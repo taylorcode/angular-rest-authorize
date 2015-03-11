@@ -84,7 +84,7 @@ angular.module('angularSyncLocalStorage', [])
 			#scope.$watch scopeKey, synchronizeLocalStorage, true
 			
 			# when storage is updated (perhaps in another window) re-synchronize localStorage --> scope
-			$($window).on 'storage', (event) ->
+			$window.addEventListener 'storage', (event) ->
 				if syncLocal()
 					# NOTE timeout is needed because this has the potential to be broadcasted before the ready 
 					# event is fired in jquery where this is being listened for
