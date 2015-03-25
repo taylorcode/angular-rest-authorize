@@ -16,6 +16,13 @@
     "tests"
   ],
   "dependencies": {
-    "angular-sync-local-storage": "https://github.com/taylorcode/angular-sync-local-storage.git#~0.1.1"
+    "gulp": "^3.8.11",
+    "gulp-babel": "^4.0.0",
+    "gulp-concat": "^2.5.2",
+    "gulp-sourcemaps": "^1.5.0"
+  },
+  "devDependencies": {
+    "gulp-jasmine": "^2.0.0",
+    "main-bower-files": "^2.6.2"
   }
 }

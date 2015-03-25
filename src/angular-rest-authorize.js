@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
   * @ngdoc overview
@@ -8,40 +8,40 @@
   * REST conventions for creating and obtaining a session, but it exposes it's lifecycle method
   * to override this behaviour
  */
-angular.module("angularRestAuthorize", ["angularSyncLocalStorage"]).constant("AUTH_EVENTS", {
-  loginSuccess: "auth-login-success",
-  loginFailed: "auth-login-failed",
-  logoutSuccess: "auth-logout-success",
-  sessionTimeout: "auth-session-timeout",
-  notAuthenticated: "auth-not-authenticated",
-  notAuthorized: "auth-not-authorized",
-  userChanged: "auth-user-changed"
-}).constant("USER_ROLES", {
-  all: "*",
-  user: "user",
-  admin: "admin"
-}).config(function ($httpProvider) {
-  return $httpProvider.interceptors.push(function ($injector) {
-    return $injector.get("AuthInterceptor");
+angular.module('angularRestAuthorize', ['angularSyncLocalStorage']).constant('AUTH_EVENTS', {
+  loginSuccess: 'auth-login-success',
+  loginFailed: 'auth-login-failed',
+  logoutSuccess: 'auth-logout-success',
+  sessionTimeout: 'auth-session-timeout',
+  notAuthenticated: 'auth-not-authenticated',
+  notAuthorized: 'auth-not-authorized',
+  userChanged: 'auth-user-changed'
+}).constant('USER_ROLES', {
+  all: '*',
+  user: 'user',
+  admin: 'admin'
+}).config(function($httpProvider) {
+  return $httpProvider.interceptors.push(function($injector) {
+    return $injector.get('AuthInterceptor');
   });
-}).factory("userSession", function ($rootScope) {
+}).factory('userSession', function($rootScope) {
   return {
     store: {},
-    create: function create(sessionId, userId, userRole) {
+    create: function(sessionId, userId, userRole) {
       this._cachedUserId = userId;
       this.store.id = sessionId;
       this.store.userId = this._cachedUserId;
       return this.store.userRole = userRole;
     },
-    destroy: function destroy() {
+    destroy: function() {
       this.store.id = null;
       this._cachedUserId = this.store.userId = null;
       return this.store.userRole = null;
     }
   };
-}).factory("AuthInterceptor", function ($rootScope, $q, AUTH_EVENTS) {
+}).factory('AuthInterceptor', function($rootScope, $q, AUTH_EVENTS) {
   return {
-    responseError: function responseError(response) {
+    responseError: function(response) {
       var code, codeMap;
       codeMap = {
         401: AUTH_EVENTS.notAuthenticated,
@@ -57,88 +57,88 @@ angular.module("angularRestAuthorize", ["angularSyncLocalStorage"]).constant("AU
       return $q.reject(response);
     }
   };
-}).provider("AuthService", function () {
+}).provider('AuthService', function() {
   var AuthServiceProvider, Session;
   Session = null;
   AuthServiceProvider = this;
-  this.resourceUrl = "/api/login";
-  this.localStorageKey = "auth-service-session";
-  this.$get = function ($q, $http, $resource, $rootScope, userSession, AUTH_EVENTS, synchronizedLocalStorage) {
+  this.resourceUrl = '/api/login';
+  this.localStorageKey = 'auth-service-session';
+  this.$get = function($q, $http, $resource, $rootScope, userSession, AUTH_EVENTS, synchronizedLocalStorage) {
     var LOCAL_STORAGE_PROP, loggedOutEvents;
     Session = $resource(AuthServiceProvider.resourceUrl);
     LOCAL_STORAGE_PROP = AuthServiceProvider.localStorageKey;
     loggedOutEvents = [AUTH_EVENTS.notAuthorized, AUTH_EVENTS.notAuthenticated, AUTH_EVENTS.sessionTimeout, AUTH_EVENTS.logoutSuccess];
-    _.each(loggedOutEvents, function (authEvent) {
-      return $rootScope.$on(authEvent, function () {
+    _.each(loggedOutEvents, function(authEvent) {
+      return $rootScope.$on(authEvent, function() {
         return userSession.destroy();
       });
     });
     return {
       calls: {
-        retain: function retain() {
+        retain: function() {
           return Session.get().$promise;
         },
-        login: function login(credentials) {
+        login: function(credentials) {
           return Session.save(credentials).$promise;
         },
-        logout: function logout() {
+        logout: function() {
           return Session["delete"]().$promise;
         }
       },
-      load: function load(sessionContainer) {
+      load: function(sessionContainer) {
         userSession.store = sessionContainer;
         synchronizedLocalStorage.synchronize(sessionContainer, AuthServiceProvider.localStorageKey, false);
-        $rootScope.$on("sls:updated", this.query.bind(this));
+        $rootScope.$on('sls:updated', this.query.bind(this));
         return this.retain();
       },
       loginPromise: null,
-      retain: function retain() {
-        return this.loginPromise = this.calls.retain().then((function (_this) {
-          return function (session) {
-            userSession.create(session.token, session.id, "user");
+      retain: function() {
+        return this.loginPromise = this.calls.retain().then((function(_this) {
+          return function(session) {
+            userSession.create(session.token, session.id, 'user');
             userSession._cachedUserId = userSession.store.userId;
             window.localStorage[AuthServiceProvider.localStorageKey] = angular.toJson(userSession.store);
-            $rootScope.$broadcast("AuthService:load", session);
+            $rootScope.$broadcast('AuthService:load', session);
             return session;
           };
         })(this));
       },
-      logout: function logout() {
-        return this.calls.logout().then((function (_this) {
-          return function (response) {
-            _this.loginPromise = _this.loginPromise.then(function () {
-              return $q.reject("user has logged out");
+      logout: function() {
+        return this.calls.logout().then((function(_this) {
+          return function(response) {
+            _this.loginPromise = _this.loginPromise.then(function() {
+              return $q.reject('user has logged out');
             });
             $rootScope.$broadcast(AUTH_EVENTS.logoutSuccess);
             return response;
           };
         })(this));
       },
-      login: function login(credentials) {
-        return this.loginPromise = this.calls.login(credentials).then(function (session) {
-          userSession.create(session.token, session.id, "user");
+      login: function(credentials) {
+        return this.loginPromise = this.calls.login(credentials).then(function(session) {
+          userSession.create(session.token, session.id, 'user');
           if (!userSession._cachedUserId) {
             userSession._cachedUserId = userSession.store.userId;
             window.localStorage[AuthServiceProvider.localStorageKey] = angular.toJson(userSession.store);
           }
-          $rootScope.$broadcast("AuthService:load", session);
+          $rootScope.$broadcast('AuthService:load', session);
           $rootScope.$broadcast(AUTH_EVENTS.loginSuccess, session);
           return session;
-        })["catch"](function () {
+        })["catch"](function() {
           $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
           return $q.reject.apply($q, arguments);
         });
       },
-      isAuthenticated: function isAuthenticated() {
+      isAuthenticated: function() {
         return !!userSession.store.userId;
       },
-      isAuthorized: function isAuthorized(authorizedRoles) {
+      isAuthorized: function(authorizedRoles) {
         return this.isAuthenticated() && authorizedRoles.indexOf(userSession.store.userRole) !== -1;
       },
-      query: function query() {
+      query: function() {
         var isAuthenticated, sessionEvent;
         isAuthenticated = this.isAuthenticated();
-        sessionEvent = (function (storageId, sessionId) {
+        sessionEvent = (function(storageId, sessionId) {
           if (storageId) {
             if (!sessionId) {
               return AUTH_EVENTS.loginSuccess;
@@ -153,7 +153,7 @@ angular.module("angularRestAuthorize", ["angularSyncLocalStorage"]).constant("AU
         })(userSession.store.userId, userSession._cachedUserId);
         userSession._cachedUserId = userSession.store.userId;
         if (sessionEvent === AUTH_EVENTS.userChanged || sessionEvent === AUTH_EVENTS.loginSuccess) {
-          return this.retain().then(function () {
+          return this.retain().then(function() {
             return $rootScope.$broadcast(sessionEvent);
           });
         }
@@ -167,4 +167,3 @@ angular.module("angularRestAuthorize", ["angularSyncLocalStorage"]).constant("AU
 
 // ---
 // generated by coffee-script 1.9.0
-//# sourceMappingURL=angular-rest-authorize.js.map
