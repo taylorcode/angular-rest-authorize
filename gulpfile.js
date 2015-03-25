@@ -9,7 +9,7 @@ var gulp = require('gulp'),
     }});
 
 gulp.task('dev:scripts', function() {
-    gulp.src('src/**/*.js') // throw vendor files in same file before souce files
+    gulp.src('src/**/*.js')
         .pipe(sourcemaps.init())
         .pipe(babel())
         .pipe(concat('angular-rest-authorize.js'))

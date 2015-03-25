@@ -134,7 +134,7 @@ angular.module('angularRestAuthorize', ['angularSyncLocalStorage']).constant('AU
       },
       isAuthorized: function(authorizedRoles) {
         return this.isAuthenticated() && authorizedRoles.indexOf(userSession.store.userRole) !== -1;
-      },
+      },ƒ
       query: function() {
         var isAuthenticated, sessionEvent;
         isAuthenticated = this.isAuthenticated();
