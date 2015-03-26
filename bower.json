@@ -16,6 +16,6 @@
     "tests"
   ],
   "dependencies": {
-    "angular-sync-local-storage": "https://github.com/taylorcode/angular-sync-local-storage.git#~0.1.6"
+    "angular-sync-local-storage": "https://github.com/taylorcode/angular-sync-local-storage.git#~0.1.7"
   }
 }
